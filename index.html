@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Device Selector</title>
+</head>
+<body>
+    <h1>Select Main Video Device</h1>
+    <select id="videoDevices"></select>
+    <button id="startStream">Start Video Stream</button>
+    
+    <h2>Video Device Information</h2>
+    <p id="deviceInfo"></p>
+
+    <video id="camera" autoplay style="display:none;"></video>
+
+    <script>
+        const videoSelect = document.getElementById('videoDevices');
+        const startButton = document.getElementById('startStream');
+        const videoElement = document.getElementById('camera');
+        const deviceInfo = document.getElementById('deviceInfo');
+
+        // Function to get the media stream from the selected device
+        function startVideo(deviceId) {
+            navigator.mediaDevices.getUserMedia({
+                video: { deviceId: deviceId ? { exact: deviceId } : undefined }
+            })
+            .then(stream => {
+                videoElement.style.display = "block";
+                videoElement.srcObject = stream;
+
+                const track = stream.getVideoTracks()[0];
+                const settings = track.getSettings();
+
+                // Show the device label, resolution, and frame rate
+                deviceInfo.innerHTML = `
+                    <strong>Device Name:</strong> ${track.label}<br>
+                    <strong>Resolution:</strong> ${settings.width} x ${settings.height}<br>
+                    <strong>Frame Rate:</strong> ${settings.frameRate} fps
+                `;
+            })
+            .catch(error => {
+                console.error("Error accessing camera:", error);
+            });
+        }
+
+        // Function to list all available video input devices
+        function listDevices() {
+            navigator.mediaDevices.enumerateDevices()
+            .then(devices => {
+                videoSelect.innerHTML = '';  // Clear the select box
+
+                const videoInputs = devices.filter(device => device.kind === 'videoinput');
+                videoInputs.forEach((device, index) => {
+                    const option = document.createElement('option');
+                    option.value = device.deviceId;
+                    option.text = device.label || `Camera ${index + 1}`;
+                    videoSelect.appendChild(option);
+                });
+
+                if (videoInputs.length > 0) {
+                    startButton.disabled = false;  // Enable button if video devices are found
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching devices:", error);
+            });
+        }
+
+        // Ask for permission and list devices
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        .then(() => {
+            // Permission granted, list devices
+            listDevices();
+        })
+        .catch(error => {
+            console.error("Permission denied or error accessing devices:", error);
+        });
+
+        // Event listener for the start button
+        startButton.addEventListener('click', () => {
+            const selectedDeviceId = videoSelect.value;
+            startVideo(selectedDeviceId);
+        });
+    </script>
+</body>
+</html>
