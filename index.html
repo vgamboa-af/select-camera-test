@@ -55,7 +55,7 @@
                 videoInputs.forEach((device, index) => {
                     const option = document.createElement('option');
                     option.value = device.deviceId;
-                    option.text = device.label || `Camera ${index + 1}`;
+                    option.text = (device.label || `Camera ${index + 1}`)+ ': '+JSON.stringify(device);
                     videoSelect.appendChild(option);
                 });
 
