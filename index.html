@@ -36,8 +36,10 @@
                 // Show the device label, resolution, and frame rate
                 deviceInfo.innerHTML = `
                     <strong>Device Name:</strong> ${track.label}<br>
+                    <strong>Track Info:</strong> ${JSON.stringify(track)}<br>
                     <strong>Resolution:</strong> ${settings.width} x ${settings.height}<br>
                     <strong>Frame Rate:</strong> ${settings.frameRate} fps
+                    <strong>Setting Info:</strong> ${JSON.stringify(settings)}<br>
                 `;
             })
             .catch(error => {
